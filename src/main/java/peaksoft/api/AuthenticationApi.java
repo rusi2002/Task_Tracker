@@ -26,6 +26,7 @@ public class AuthenticationApi {
     public  AuthenticationResponse signIn(@RequestBody SignInRequest signInRequest){
         return authenticationService.signIn(signInRequest);
     }
+
     @PostMapping("/forgotPassword")
     public void forgotPassword(@RequestParam String email, @RequestParam String link) throws MessagingException {
         authenticationService.forgotPassword(email, link);

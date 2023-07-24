@@ -132,12 +132,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 }
         );
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
         helper.setSubject("Task Tracker");
         helper.setFrom("rusi.studio.kgz@gmail.com");
         helper.setTo(email);
-        helper.setText(" Hello " +user.getFirstName() +"\n\nTo get a new password reset link visit: " + link + "/" + user.getId());
+        helper.setText("Hello " + user.getFirstName() + "," +
+                "\n" +
+                "You have requested to reset your password. Please click the link below to reset your password:\n" +
+                "\n" +
+                link + "/" + user.getId() +
+                "\n" +
+                "If you didn't request a password reset, please ignore this email.\n" +
+                "\n" +
+                "Best regards,\n" +
+                "Your App Team");
         javaMailSender.send(mimeMessage);
+
         return  SimpleResponse.builder()
                 .status(HttpStatus.OK)
                         .message("email send")
@@ -188,13 +198,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .token(token)
                 .build();
     }
-//    private void sendEmail(String to,String body){
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setFrom("rusi.studio.kgz@gmail.com");
-//        message.setTo(to);
-//        message.setText(body);
-//        message.setSubject("Reset");
-//        mailSender.send(message);
-//    }
 
 }

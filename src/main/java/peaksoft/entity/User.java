@@ -1,42 +1,70 @@
 package peaksoft.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import peaksoft.enums.Role;
 
-
 import java.util.Collection;
 import java.util.List;
+
+import static jakarta.persistence.CascadeType.*;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User implements UserDetails {
+
     @Id
-    @GeneratedValue(
-            generator = "user_gen",
-            strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(
-            name = "user_gen",
-            sequenceName = "user_seq",
-            allocationSize = 1)
+    @GeneratedValue(generator = "users_gen",strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "users_gen",sequenceName = "users_seq",allocationSize = 1)
     private Long id;
+
+    @jakarta.persistence.Column(name = "first_name")
     private String firstName;
+
+    @jakarta.persistence.Column(name = "last_name")
     private String lastName;
+
     private String email;
+
     private String password;
+
+    private String image;
+
+
+    @ManyToMany(cascade = {MERGE,DETACH,REFRESH})
+    private List<WorkSpace> workSpaces;
+
+    @OneToMany(cascade = {ALL}, mappedBy = "user")
+    private List<Favorite> favorites;
+
+    @ManyToMany(cascade = {MERGE,DETACH,REFRESH}, mappedBy = "users")
+    private List<Column> columns;
+
+    @ManyToMany(cascade = {MERGE,DETACH,REFRESH}, mappedBy = "users")
+    private List<Card> cards;
+
+    @ManyToMany(cascade = {MERGE,DETACH,REFRESH}, mappedBy = "users")
+    private List<Notification> notifications;
+
+    @OneToMany(cascade = {ALL}, mappedBy = "user")
+    private List<Comment> comments;
+
+    @ManyToMany(cascade = {MERGE,DETACH,REFRESH}, mappedBy = "users")
+    private List<Board> boards;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(cascade = {ALL}, mappedBy = "user")
+    private List<UserWorkSpaceRole> roles;
 
 
     @Override
@@ -73,6 +101,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-
 }
