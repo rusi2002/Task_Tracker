@@ -1,24 +1,38 @@
 package peaksoft.services.impl;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import jakarta.annotation.PostConstruct;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import peaksoft.house.tasktrackerb9.config.security.JwtService;
-import peaksoft.house.tasktrackerb9.dto.request.SignInRequest;
-import peaksoft.house.tasktrackerb9.dto.request.SignUpRequest;
-import peaksoft.house.tasktrackerb9.dto.response.AuthenticationResponse;
-import peaksoft.house.tasktrackerb9.enums.Role;
-import peaksoft.house.tasktrackerb9.exceptions.BadCredentialException;
-import peaksoft.house.tasktrackerb9.exceptions.NotFoundException;
-import peaksoft.house.tasktrackerb9.models.User;
-import peaksoft.house.tasktrackerb9.repositories.UserRepository;
-import peaksoft.house.tasktrackerb9.services.AuthenticationService;
+import peaksoft.config.security.JwtService;
+import peaksoft.dto.request.ResetPasswordRequest;
+import peaksoft.dto.request.SignInRequest;
+import peaksoft.dto.request.SignUpRequest;
+import peaksoft.dto.response.AuthenticationResponse;
+import peaksoft.dto.response.ResetPasswordResponse;
+import peaksoft.dto.response.SimpleResponse;
+import peaksoft.enums.Role;
+import peaksoft.exceptions.BadCredentialException;
+import peaksoft.exceptions.NotFoundException;
+import peaksoft.models.User;
+import peaksoft.repositories.UserRepository;
+import peaksoft.services.AuthenticationService;
+
 
 import java.io.IOException;
 
@@ -31,6 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender javaMailSender;
 
     @Override
     public AuthenticationResponse signUp(SignUpRequest signUpRequest) {

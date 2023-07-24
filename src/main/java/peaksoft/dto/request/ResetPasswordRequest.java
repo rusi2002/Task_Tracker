@@ -1,6 +1,7 @@
 package peaksoft.dto.request;
 
-import peaksoft.house.tasktrackerb9.validation.PasswordValid;
+import peaksoft.validation.PasswordValid;
+
 public record ResetPasswordRequest(Long userId,
                                    @PasswordValid
                                    String newPassword,

@@ -1,6 +1,8 @@
 package peaksoft.services;
 
 
+import com.google.firebase.auth.FirebaseAuthException;
+import jakarta.mail.MessagingException;
 import peaksoft.dto.request.ResetPasswordRequest;
 import peaksoft.dto.request.SignInRequest;
 import peaksoft.dto.request.SignUpRequest;
@@ -16,8 +18,8 @@ public interface AuthenticationService {
 
     ResetPasswordResponse resetPassword(ResetPasswordRequest passwordRequest);
 
-    SimpleResponse forgotPassword(String email, String link) throws MessagingException;
+    SimpleResponse forgotPassword(String email, String link) throws MessagingException, MessagingException;
 
-    AuthenticationResponse authWithGoogle(String tokenId) throws FirebaseAuthException;
+    AuthenticationResponse authWithGoogle(String tokenId) throws FirebaseAuthException, FirebaseAuthException;
 
 }

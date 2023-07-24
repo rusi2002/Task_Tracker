@@ -1,7 +1,7 @@
 package peaksoft.dto.response;
 
 import lombok.Builder;
-import peaksoft.house.tasktrackerb9.enums.Role;
+import peaksoft.enums.Role;
 
 @Builder
 public record ResetPasswordResponse(Long userId,

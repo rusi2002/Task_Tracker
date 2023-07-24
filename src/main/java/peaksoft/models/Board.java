@@ -1,6 +1,5 @@
 package peaksoft.models;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.*;
 import lombok.*;
 

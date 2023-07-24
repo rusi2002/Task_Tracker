@@ -13,8 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import peaksoft.house.tasktrackerb9.models.User;
-import peaksoft.house.tasktrackerb9.repositories.UserRepository;
+import peaksoft.models.User;
+import peaksoft.repositories.UserRepository;
 
 import java.io.IOException;
 

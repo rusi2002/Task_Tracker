@@ -1,8 +1,8 @@
 package peaksoft.dto.request;
 
 import jakarta.persistence.Column;
-import peaksoft.house.tasktrackerb9.validation.EmailValid;
-import peaksoft.house.tasktrackerb9.validation.PasswordValid;
+import peaksoft.validation.EmailValid;
+import peaksoft.validation.PasswordValid;
 
 public record SignInRequest(
         

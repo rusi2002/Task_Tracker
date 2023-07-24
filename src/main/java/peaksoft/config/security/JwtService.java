@@ -11,8 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import peaksoft.house.tasktrackerb9.models.User;
-import peaksoft.house.tasktrackerb9.repositories.UserRepository;
+import peaksoft.models.User;
+import peaksoft.repositories.UserRepository;
+
 
 import java.time.ZonedDateTime;
 import java.util.Date;
