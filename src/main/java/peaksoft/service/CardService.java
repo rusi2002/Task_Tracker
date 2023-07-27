@@ -10,6 +10,9 @@ import java.util.List;
 public interface CardService {
 
     CardInnerPageResponse saveCard(CardRequest cardRequest);
+    CardInnerPageResponse get(Long cardId);
+
+    List<CardResponse> getAllCardsByColumnId(Long columnId);
 
     List<CardResponse> getAllCards(Long columnId);
 

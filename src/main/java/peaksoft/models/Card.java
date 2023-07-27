@@ -31,24 +31,24 @@ public class Card {
     @ManyToMany(cascade ={DETACH,MERGE,REFRESH})
     private List<User>users;
 
-    @ManyToMany(cascade = {DETACH,MERGE,REFRESH},mappedBy = "cards")
-    private List<Label>labels;
-
-    @OneToMany(cascade = {DETACH,MERGE,REFRESH},mappedBy = "card")
-    private List<Notification>notifications;
-
-    @OneToMany(cascade = {ALL},mappedBy = "card")
-    private List<Attachment>attachments;
-
-    @OneToMany(cascade = {ALL},mappedBy = "card")
-    private List<Comment>comments;
-
     @OneToMany(cascade = {ALL},mappedBy = "card")
     private List<CheckList>checkLists;
 
     @OneToOne(cascade = {ALL},mappedBy = "card")
     private Estimation estimation;
 
+    @OneToMany(cascade = {ALL},mappedBy = "card")
+    private List<Comment>comments;
+
     @ManyToOne(cascade = {DETACH,MERGE,REFRESH})
     private Column column;
+
+    @OneToMany(cascade = {ALL},mappedBy = "card")
+    private List<Attachment>attachments;
+
+    @ManyToMany(cascade = {DETACH,MERGE,REFRESH},mappedBy = "cards")
+    private List<Label>labels;
+
+    @OneToMany(cascade = {DETACH,MERGE,REFRESH},mappedBy = "card")
+    private List<Notification>notifications;
 }

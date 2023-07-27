@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -16,7 +17,12 @@ public class CommentResponse {
 
     private Long commentId;
     private String comment;
-    private ZonedDateTime createdDate;
+    private Date createdDate;
     private CommentUserResponse commentUserResponse;
 
+    public CommentResponse(Long commentId, String comment, Date createdDate) {
+        this.commentId = commentId;
+        this.comment = comment;
+        this.createdDate = createdDate;
+    }
 }

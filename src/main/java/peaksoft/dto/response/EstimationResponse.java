@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import peaksoft.enums.ReminderType;
 
+import java.sql.Time;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -19,8 +21,8 @@ public class EstimationResponse {
     private Long estimationId;
     @Enumerated(EnumType.STRING)
     private ReminderType reminderType;
-    private ZonedDateTime startDate;
-    private ZonedDateTime duetDate;
-    private ZonedDateTime time;
+    private Date startDate;
+    private Date duetDate;
+    private Date time;
 
 }

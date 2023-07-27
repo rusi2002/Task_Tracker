@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import peaksoft.dto.request.ResetPasswordRequest;
 import peaksoft.dto.request.SignInRequest;
 import peaksoft.dto.request.SignUpRequest;
 import peaksoft.dto.response.AuthenticationResponse;
 import peaksoft.dto.response.ResetPasswordResponse;
-import peaksoft.services.AuthenticationService;
+import peaksoft.dto.response.SimpleResponse;
+import peaksoft.service.AuthenticationService;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,18 +35,22 @@ public class AuthenticationApi {
         return authenticationService.signIn(signInRequest);
     }
 
-    @PostMapping("/forgotPassword")
-    public void forgotPassword(@RequestParam String email, @RequestParam String link) throws MessagingException {
-        authenticationService.forgotPassword(email, link);
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Forgot password", description = "Enables password recovery for forgotten accounts via email verification")
+    public SimpleResponse forgotPassword(@RequestParam String email, @RequestParam String link) throws MessagingException {
+        return authenticationService.forgotPassword(email, link);
     }
-    @Operation(summary = "Reset password", description = "Allows you to reset the user's password")
-    @PostMapping("/reset/password/{userId}")
-    public ResetPasswordResponse resetPassword(@PathVariable Long userId,@RequestParam String newPassword,@RequestParam String repeatPassword) {
-        return authenticationService.resetPassword(userId, newPassword, repeatPassword);
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password", description = "Here you can reset your password")
+    public ResetPasswordResponse resetPassword(@RequestBody ResetPasswordRequest passwordRequest) {
+        return authenticationService.resetPassword(passwordRequest);
     }
-    @Operation(summary = "Google authentication", description = "Any user can authenticate with Google")
+
     @PostMapping("/google")
+    @Operation(summary = "Google authentication", description = "All users can login with Google")
     public AuthenticationResponse authWithGoogleAccount(@RequestParam String tokenId) throws FirebaseAuthException {
         return authenticationService.authWithGoogle(tokenId);
     }
+
 }

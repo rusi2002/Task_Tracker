@@ -19,22 +19,22 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import peaksoft.config.JwtService;
+import peaksoft.config.security.JwtService;
+import peaksoft.dto.request.ResetPasswordRequest;
 import peaksoft.dto.request.SignInRequest;
 import peaksoft.dto.request.SignUpRequest;
 import peaksoft.dto.response.AuthenticationResponse;
 import peaksoft.dto.response.ResetPasswordResponse;
 import peaksoft.dto.response.SimpleResponse;
-import peaksoft.entity.User;
 import peaksoft.enums.Role;
 import peaksoft.exceptions.BadCredentialException;
-import peaksoft.exceptions.IllegalArgumentExceptionn;
 import peaksoft.exceptions.NotFoundException;
+import peaksoft.models.User;
 import peaksoft.repository.UserRepository;
 import peaksoft.service.AuthenticationService;
 
-import java.io.IOException;
 
+import java.io.IOException;
 
 @Service
 @Transactional
@@ -47,10 +47,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
 
-
     @Override
     public AuthenticationResponse signUp(SignUpRequest signUpRequest) {
-
         if (userRepository.existsByEmail(signUpRequest.email())) {
             log.error(String.format("User with email: %s already exist!", signUpRequest.email()));
             throw new EntityExistsException(String.format("User with email: %s already exist!", signUpRequest.email()));
@@ -60,6 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setLastName(signUpRequest.lastName());
         user.setEmail(signUpRequest.email());
         user.setPassword(passwordEncoder.encode(signUpRequest.password()));
+        user.setImage("Default image");
         user.setRole(Role.ADMIN);
         userRepository.save(user);
 
@@ -73,66 +72,71 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse signIn(SignInRequest signInRequest) {
-
         if (signInRequest.email().isBlank()) {
-            throw new BadCredentialException("Email doesn't exist!");
+            log.error("User with email: " + signInRequest.email() + " not found");
+            throw new BadCredentialException("User with email: " + signInRequest.email() + " not found");
         }
-        User user = userRepository.getUserByEmail(signInRequest.email())
-                .orElseThrow(() -> {
-                    log.error(String.format("User with email : %s not found !", signInRequest.email()));
-                    return new EntityExistsException(String.format("User with email : %s not found !", signInRequest.email()));
-                });
+        User user = userRepository.getUserByEmail(signInRequest.email()).orElseThrow(() -> {
+            log.error("User with email: " + signInRequest.email() + " not found");
+            return new NotFoundException("User with email: " + signInRequest.email() + " not found");
 
+        });
         if (!passwordEncoder.matches(signInRequest.password(), user.getPassword())) {
             log.error("Incorrect password !");
             throw new BadCredentialException("Incorrect password !");
         }
 
         String jwtToken = jwtService.generateToken(user);
+
         return AuthenticationResponse.builder()
                 .email(user.getEmail())
                 .role(user.getRole())
                 .token(jwtToken)
                 .build();
+
     }
-
     @Override
-    public ResetPasswordResponse resetPassword(Long userId,String newPassword,String repeatPassword) {
+    public ResetPasswordResponse resetPassword(ResetPasswordRequest repeatPassword) {
 
-        User user = userRepository.findById(userId).orElseThrow(
+        User user = userRepository.findById(repeatPassword.userId()).orElseThrow(
                 () -> {
-                    log.error("User with id: " + userId + " not found!");
-                    return new NotFoundException("User with id: " + userId + " not found!");
+                    log.error("User with id: " + repeatPassword.userId() + " not found!");
+                    return new NotFoundException("User with id: " + repeatPassword.userId() + " not found!");
                 }
         );
-
-        if (!newPassword.equals(repeatPassword)) {
-            throw new IllegalArgumentExceptionn("Passwords do not match");
+        if (!repeatPassword.newPassword().equals(repeatPassword.repeatPassword())) {
+            log.error("Passwords do not match");
+            throw new BadCredentialException("Passwords do not match");
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(repeatPassword.newPassword()));
         userRepository.save(user);
+        log.info("Password updated!");
         String jwt = jwtService.generateToken(user);
-        return new ResetPasswordResponse(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getRole(),
-                jwt,
-                "Password updated!");
+
+        return ResetPasswordResponse.builder()
+                .userId(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .jwtToken(jwt)
+                .message("Password updated!")
+                .build();
     }
 
     @Override
     public SimpleResponse forgotPassword(String email, String link) throws MessagingException {
+
         User user = userRepository.findUserByEmail(email).orElseThrow(
                 () -> {
                     log.error("User with email:" + email + "not found!");
                     return new NotFoundException("User with email:" + email + "not found!");
                 }
         );
+
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,true,"UTF-8");
         helper.setSubject("Task Tracker");
         helper.setFrom("rusi.studio.kgz@gmail.com");
         helper.setTo(email);
@@ -148,17 +152,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 "Your App Team");
         javaMailSender.send(mimeMessage);
 
-        return  SimpleResponse.builder()
+        return SimpleResponse.builder()
                 .status(HttpStatus.OK)
-                        .message("email send")
-                                .build();
-
+                .message("email send")
+                .build();
     }
 
     @PostConstruct
-    public void init() throws IOException {
+    public void initFireBaseForAuthGoogle() throws IOException {
+
         GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
-                        new ClassPathResource("tasktracker.json").getInputStream());
+                new ClassPathResource("tasktracker.json").getInputStream());
         FirebaseOptions firebaseOptions = FirebaseOptions.builder()
                 .setCredentials(googleCredentials).build();
         FirebaseApp.initializeApp(firebaseOptions);
@@ -166,11 +170,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authWithGoogle(String tokenId) throws FirebaseAuthException {
+
         FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(tokenId);
         User user;
         if (!userRepository.existsByEmail(firebaseToken.getEmail())) {
             if (firebaseToken.getName().matches(" ")) {
-                String [] name = firebaseToken.getName().split(" ");
+                String[] name = firebaseToken.getName().split(" ");
                 user = new User();
                 user.setFirstName(name[0]);
                 user.setLastName(name[1]);
@@ -179,7 +184,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 user.setFirstName(firebaseToken.getName());
             }
             user.setEmail(firebaseToken.getEmail());
-            user.setPassword(firebaseToken.getEmail());
+            user.setPassword(passwordEncoder.encode(firebaseToken.getEmail()));
             user.setRole(Role.ADMIN);
             userRepository.save(user);
         }
@@ -190,13 +195,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     return new NotFoundException("User with this email not found!");
                 }
         );
-
         String token = jwtService.generateToken(user);
+
         return AuthenticationResponse.builder()
                 .email(user.getEmail())
                 .role(user.getRole())
                 .token(token)
                 .build();
     }
-
 }

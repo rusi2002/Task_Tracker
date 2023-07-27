@@ -2,12 +2,11 @@ package peaksoft.dto.response;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class CardInnerPageResponse {
 
@@ -21,4 +20,22 @@ public class CardInnerPageResponse {
     private List<CheckListResponse> checklistResponses;
     private List<CommentResponse> commentResponses;
 
+    public CardInnerPageResponse(Long cardId, String title, String description, Boolean isArchive, EstimationResponse estimationResponse, List<LabelResponse> labelResponses, List<UserResponse> userResponses, List<CheckListResponse> checklistResponses, List<CommentResponse> commentResponses) {
+        this.cardId = cardId;
+        this.title = title;
+        this.description = description;
+        this.isArchive = isArchive;
+        this.estimationResponse = estimationResponse;
+        this.labelResponses = labelResponses;
+        this.userResponses = userResponses;
+        this.checklistResponses = checklistResponses;
+        this.commentResponses = commentResponses;
+    }
+
+    public CardInnerPageResponse() {
+        labelResponses = new ArrayList<>();
+        userResponses = new ArrayList<>();
+        checklistResponses = new ArrayList<>();
+        commentResponses = new ArrayList<>();
+    }
 }

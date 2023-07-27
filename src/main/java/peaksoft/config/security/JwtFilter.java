@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import peaksoft.models.User;
-import peaksoft.repositories.UserRepository;
+import peaksoft.repository.UserRepository;
 
 import java.io.IOException;
 

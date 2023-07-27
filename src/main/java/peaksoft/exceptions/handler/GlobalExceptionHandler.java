@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 import peaksoft.exceptions.*;
 
 
@@ -31,9 +30,9 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(HttpClientErrorException.BadRequest.class)
+    @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionResponse badRequest(HttpClientErrorException.BadRequest e){
+    public ExceptionResponse badRequest(BadRequestException e){
         return ExceptionResponse.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .exceptionClassName(e.getClass().getSimpleName())

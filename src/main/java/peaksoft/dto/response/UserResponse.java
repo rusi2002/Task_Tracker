@@ -1,14 +1,18 @@
 package peaksoft.dto.response;
 
-import lombok.Builder;
+import lombok.*;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public record UserResponse(Long id,
-                           String firstName,
-                           String lastName,
-                           String email,
-                           String password,
-                           String image
+@Getter
+@Setter
+public class UserResponse {
 
-) {
+    private Long memberId;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String image;
+
 }
